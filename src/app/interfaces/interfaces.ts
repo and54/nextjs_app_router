@@ -45,6 +45,13 @@ export interface IUser {
   };
 }
 
+export interface ISearchData {
+  results?: number;
+  seed?: string;
+  page?: number;
+}
+
 export interface IList {
   results: IUser[];
+  info: ISearchData;
 }

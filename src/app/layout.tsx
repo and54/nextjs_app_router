@@ -11,14 +11,13 @@ export const metadata: Metadata = {
   description: 'Created by Andres Munoz',
 }
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <body suppressHydrationWarning={true} style={{ margin: 0, padding: 0 }}>
-        <UsersProvider>
-          {children}
-        </UsersProvider>
-      </body>
-    </html>
-  )
-}
+const RootLayout = ({ children }: { children: ReactNode }) =>
+  <html lang="en">
+    <body style={{ margin: 0, padding: 0 }} suppressHydrationWarning>
+      <UsersProvider>
+        {children}
+      </UsersProvider>
+    </body>
+  </html>
+
+export default RootLayout

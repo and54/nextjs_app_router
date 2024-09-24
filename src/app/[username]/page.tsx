@@ -7,17 +7,16 @@ import { Card, CardMedia, CardContent, Typography, Button, CardActions } from '@
 import { useParams, useRouter } from 'next/navigation';
 import { UserPageStyled } from '../_styles/main.styles';
 
-export default function UserPage() {
+const UserPage = () => {
   const [user, setUser] = useState<IUser>();
   const { searchUser } = useContext(UsersContext);
   const { username } = useParams<{ username: string }>();
   const router = useRouter();
 
   useEffect(() => {
-    if (!username) router.replace('/');
+    if (!username) router.back();
     const tmpUser = searchUser(username);
     if (tmpUser) setUser(tmpUser);
-    else router.replace('/');
   }, []);
 
   const { picture, name, dob, location, email, phone } = user || {};
@@ -33,34 +32,34 @@ export default function UserPage() {
 
   return (
     <UserPageStyled>
-      {user &&
-        <Card sx={{ maxWidth: 500 }} elevation={3}>
-          <CardActions>
-            <Button size="small" onClick={() => router.replace('/')}>
-              Go Back
-            </Button>
-          </CardActions>
-          <CardMedia
-            component="img"
-            image={picture?.large}
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {`${name?.title} ${name?.first} ${name?.last}`}
-            </Typography>
-            {info.map(({ name, value }) => (
-              <div key={value}>
-                <Typography sx={{ display: 'inline' }} variant="body1">
-                  {`${name}: `}
-                </Typography>
-                <Typography sx={{ display: 'inline' }} variant="body1" color="text.secondary">
-                  {value}
-                </Typography>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      }
+      <Card sx={{ maxWidth: 500 }} elevation={3}>
+        <CardActions>
+          <Button size="small" onClick={router.back}>
+            Go Back
+          </Button>
+        </CardActions>
+        <CardMedia
+          component="img"
+          image={picture?.large}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {`${name?.title} ${name?.first} ${name?.last}`}
+          </Typography>
+          {info.map(({ name, value }) => (
+            <div key={value}>
+              <Typography sx={{ display: 'inline' }} variant="body1">
+                {`${name}: `}
+              </Typography>
+              <Typography sx={{ display: 'inline' }} variant="body1" color="text.secondary">
+                {value}
+              </Typography>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </UserPageStyled>
   )
 }
+
+export default UserPage;

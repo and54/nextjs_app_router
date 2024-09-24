@@ -1,38 +1,41 @@
 'use client';
 
 import { useContext, useEffect, useState, MouseEvent, ChangeEvent } from 'react';
-import { Card, CardActionArea, CardContent, CardMedia, Grid, TablePagination, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, CardMedia, CircularProgress, Grid, TablePagination, Typography } from '@mui/material';
 import { MainContainer } from '../_styles/main.styles';
 import { IList } from '../interfaces/interfaces';
 import { UsersContext } from '../_context/userContext';
 import { useRouter } from 'next/navigation';
 
-export function List({ results }: IList) {
+export const List = ({ results, info }: IList) => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const { users, setUsers } = useContext(UsersContext);
   const router = useRouter();
 
-  useEffect(() => setUsers(results), []);
-
-  useEffect(() => { getData() }, [page, rowsPerPage]);
-
-  const getData = async () => {
-    const res = await fetch(`https://randomuser.me/api/?results=${rowsPerPage}&seed=ef5a43297aff174b&page=${page}`)
-    if (!res.ok) throw new Error('Failed to fetch data');
-    const { results } = await res.json();
+  useEffect(() => {
     setUsers(results);
-  }
+    if (info.page && page !== info.page) setPage(info.page);
+    if (info.results && rowsPerPage !== info.results) setRowsPerPage(info.results);
+  }, [results]);
+
+  useEffect(() =>
+    router.push(`?results=${rowsPerPage}&seed=${info.seed}&page=${page}`),
+    [page, rowsPerPage]);
 
   const handleChangePage = (_: MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    if (newPage + 1 !== page) setPage(newPage + 1);
+    if (newPage + 1 !== page) {
+      setUsers([]);
+      setPage(newPage + 1);
+    }
   }
 
   const handleChangeRowsPerPage = (
     { target }: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     if (+target.value !== rowsPerPage) {
+      setUsers([]);
       setRowsPerPage(+target.value);
       setPage(1);
     }
@@ -40,7 +43,7 @@ export function List({ results }: IList) {
 
   return (
     <MainContainer>
-      {users &&
+      {users?.length ?
         <Grid container spacing={2}>
           {users.map((user) => {
             const { login, picture, name, dob, location } = user;
@@ -50,7 +53,7 @@ export function List({ results }: IList) {
                   <CardActionArea onClick={() => router.push(`/${login.username}`)}>
                     <CardMedia
                       component="img"
-                      image={picture.medium}
+                      image={picture.large}
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
@@ -69,7 +72,10 @@ export function List({ results }: IList) {
             )
           }
           )}
-        </Grid>
+        </Grid> :
+        <div className="loader">
+          <CircularProgress size={80} />
+        </div>
       }
       <TablePagination
         component="div"
