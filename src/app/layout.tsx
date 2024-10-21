@@ -7,7 +7,7 @@ import '@fontsource/roboto/700.css';
 import { UsersProvider } from './_context/userContext';
 
 export const metadata: Metadata = {
-  title: 'Amex Random Users',
+  title: 'Random Users',
   description: 'Created by Andres Munoz',
 }
 
