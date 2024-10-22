@@ -17,6 +17,7 @@ const UserPage = () => {
     if (!username) router.back();
     const tmpUser = searchUser(username);
     if (tmpUser) setUser(tmpUser);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { picture, name, dob, location, email, phone } = user || {};
@@ -32,7 +33,7 @@ const UserPage = () => {
 
   return (
     <UserPageStyled>
-      <Card sx={{ maxWidth: 500 }} elevation={3}>
+      {user && <Card sx={{ maxWidth: 500 }} elevation={3}>
         <CardActions>
           <Button size="small" onClick={router.back}>
             Go Back
@@ -57,7 +58,7 @@ const UserPage = () => {
             </div>
           ))}
         </CardContent>
-      </Card>
+      </Card>}
     </UserPageStyled>
   )
 }

@@ -1,44 +1,35 @@
 'use client';
 
-import { useContext, useEffect, useState, MouseEvent, ChangeEvent } from 'react';
+import { useContext, useEffect, MouseEvent, ChangeEvent } from 'react';
 import { Card, CardActionArea, CardContent, CardMedia, CircularProgress, Grid, TablePagination, Typography } from '@mui/material';
 import { MainContainer } from '../_styles/main.styles';
 import { IList } from '../interfaces/interfaces';
 import { UsersContext } from '../_context/userContext';
 import { useRouter } from 'next/navigation';
 
-export const List = ({ results, info }: IList) => {
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+export const List = ({ getData }: IList) => {
 
-  const { users, setUsers } = useContext(UsersContext);
+  const { users, info, setUsers, setInfo } = useContext(UsersContext);
   const router = useRouter();
 
-  useEffect(() => {
-    setUsers(results);
-    if (info.page && page !== info.page) setPage(info.page);
-    if (info.results && rowsPerPage !== info.results) setRowsPerPage(info.results);
-  }, [results]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadData(); }, [info]);
 
-  useEffect(() =>
-    router.push(`?results=${rowsPerPage}&seed=${info.seed}&page=${page}`),
-    [page, rowsPerPage]);
+  const loadData = async () => {
+    const result = await getData(info);
+
+    if (info?.seed !== result?.info?.seed) setInfo(result?.info);
+    setUsers(result?.results || [])
+  }
 
   const handleChangePage = (_: MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    if (newPage + 1 !== page) {
-      setUsers([]);
-      setPage(newPage + 1);
-    }
+    if (newPage + 1 !== info.page) setInfo({ ...info, page: newPage + 1 });
   }
 
   const handleChangeRowsPerPage = (
     { target }: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    if (+target.value !== rowsPerPage) {
-      setUsers([]);
-      setRowsPerPage(+target.value);
-      setPage(1);
-    }
+    if (+target.value !== info.results) setInfo({ ...info, page: 1, results: +target.value });
   };
 
   return (
@@ -80,9 +71,9 @@ export const List = ({ results, info }: IList) => {
       <TablePagination
         component="div"
         count={100}
-        page={page - 1}
+        page={info.page - 1}
         onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
+        rowsPerPage={info.results}
         onRowsPerPageChange={handleChangeRowsPerPage}
         rowsPerPageOptions={[10, 15, 20]}
       />

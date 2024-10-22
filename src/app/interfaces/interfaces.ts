@@ -4,6 +4,8 @@ export interface IUsersContext {
   users: IUser[];
   setUsers: Dispatch<SetStateAction<IUser[]>>;
   searchUser: (username: string) => IUser | null;
+  info: ISearchData;
+  setInfo: Dispatch<SetStateAction<ISearchData>>;
 }
 
 export interface IUser {
@@ -46,12 +48,16 @@ export interface IUser {
 }
 
 export interface ISearchData {
-  results?: number;
+  results: number;
+  page: number;
   seed?: string;
-  page?: number;
+}
+
+export interface dataResult {
+  results: IUser[];
+  info: ISearchData;
 }
 
 export interface IList {
-  results: IUser[];
-  info: ISearchData;
+  getData: (query: ISearchData) => Promise<dataResult>
 }
