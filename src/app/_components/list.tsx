@@ -1,26 +1,33 @@
 'use client';
 
-import { useContext, useEffect, MouseEvent, ChangeEvent } from 'react';
+import { useContext, useEffect, MouseEvent, ChangeEvent, useTransition, useState } from 'react';
 import { Card, CardActionArea, CardContent, CardMedia, CircularProgress, Grid, TablePagination, Typography } from '@mui/material';
 import { MainContainer } from '../_styles/main.styles';
-import { IList } from '../interfaces/interfaces';
 import { UsersContext } from '../_context/userContext';
 import { useRouter } from 'next/navigation';
+import { getData } from '../actions';
 
-export const List = ({ getData }: IList) => {
+export const List = () => {
+  const [error, setError] = useState('');
 
   const { users, info, setUsers, setInfo } = useContext(UsersContext);
+
   const router = useRouter();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { loadData(); }, [info]);
+  const [isPending, startTransition] = useTransition();
 
-  const loadData = async () => {
-    const result = await getData(info);
+  useEffect(() => {
+    startTransition(async () => {
+      const { error, info: resInfo, results } = await getData(info);
 
-    if (info?.seed !== result?.info?.seed) setInfo(result?.info);
-    setUsers(result?.results || [])
-  }
+      if (!error) {
+        if (info?.seed !== resInfo?.seed) setInfo(resInfo);
+        setUsers(results || []);
+      }
+
+      setError(error || '');
+    });
+  }, [info]);
 
   const handleChangePage = (_: MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     if (newPage + 1 !== info.page) setInfo({ ...info, page: newPage + 1 });
@@ -34,7 +41,7 @@ export const List = ({ getData }: IList) => {
 
   return (
     <MainContainer>
-      {users?.length ?
+      {users?.length || !isPending ?
         <Grid container spacing={2}>
           {users.map((user) => {
             const { login, picture, name, dob, location } = user;
@@ -65,7 +72,7 @@ export const List = ({ getData }: IList) => {
           )}
         </Grid> :
         <div className="loader">
-          <CircularProgress size={80} />
+          {error || <CircularProgress size={80} />}
         </div>
       }
       <TablePagination

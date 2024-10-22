@@ -17,7 +17,7 @@ const UserPage = () => {
     if (!username) router.back();
     const tmpUser = searchUser(username);
     if (tmpUser) setUser(tmpUser);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    else router.back();
   }, []);
 
   const { picture, name, dob, location, email, phone } = user || {};
